@@ -42,7 +42,7 @@ import Data.Geometry.Geos.Geometry
 import Data.Text (pack)
 import Data.Text.Encoding (decodeUtf8, encodeUtf8Builder)
 import Database.Persist.Sql
-    ( PersistField, PersistFieldSql, PersistValue(PersistDbSpecific), SqlType(SqlOther)
+    ( PersistField, PersistFieldSql, PersistValue(PersistLiteralEscaped), SqlType(SqlOther)
     , fromPersistValue, sqlType, toPersistValue
     )
 import Web.HttpApiData (FromHttpApiData, ToHttpApiData, parseUrlPiece, toUrlPiece)
@@ -218,20 +218,20 @@ instance PersistField (Geography MultiPolygon) where
 instance PersistField (Some Geography) where
     toPersistValue (Some g) = case g of
         PointGeography p ->
-            PersistDbSpecific . writeHex $ PointGeometry p (Just 4326)
+            PersistLiteralEscaped . writeHex $ PointGeometry p (Just 4326)
         LineStringGeography ls -> 
-            PersistDbSpecific . writeHex $ LineStringGeometry ls (Just 4326)
+            PersistLiteralEscaped . writeHex $ LineStringGeometry ls (Just 4326)
         LinearRingGeography lr ->
-            PersistDbSpecific . writeHex $ LinearRingGeometry lr (Just 4326)
+            PersistLiteralEscaped . writeHex $ LinearRingGeometry lr (Just 4326)
         PolygonGeography pl ->
-            PersistDbSpecific . writeHex $ PolygonGeometry pl (Just 4326)
+            PersistLiteralEscaped . writeHex $ PolygonGeometry pl (Just 4326)
         MultiPointGeography mp ->
-            PersistDbSpecific . writeHex $ MultiPointGeometry mp (Just 4326)
+            PersistLiteralEscaped . writeHex $ MultiPointGeometry mp (Just 4326)
         MultiLineStringGeography mls ->
-            PersistDbSpecific . writeHex $ MultiLineStringGeometry mls (Just 4326)
+            PersistLiteralEscaped . writeHex $ MultiLineStringGeometry mls (Just 4326)
         MultiPolygonGeography mpl ->
-            PersistDbSpecific . writeHex $ MultiPolygonGeometry mpl (Just 4326)
-    fromPersistValue (PersistDbSpecific b) = case readHex b of
+            PersistLiteralEscaped . writeHex $ MultiPolygonGeometry mpl (Just 4326)
+    fromPersistValue (PersistLiteralEscaped b) = case readHex b of
         Just (Some (PointGeometry p (Just 4326))) ->
             Right . Some $ PointGeography p
         Just (Some (LineStringGeometry ls (Just 4326))) ->
